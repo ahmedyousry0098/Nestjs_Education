@@ -34,8 +34,3 @@ export class CreateCourseDto {
     @IsBoolean() 
     isDeleted: boolean = false
 }
-
-export class FindCourseDto {
-    
-
-}

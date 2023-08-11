@@ -11,6 +11,7 @@ export class SerializeInterceptor implements NestInterceptor {
     constructor(private dto: EntityDTO) {}
 
     intercept(context: ExecutionContext, handler: CallHandler) {
+        const body = context.switchToHttp().getRequest()
         
         return handler.handle().pipe(
             map((data: any) => {
