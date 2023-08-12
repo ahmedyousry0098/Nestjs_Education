@@ -37,7 +37,7 @@ export class AuthenticationService {
     }
 
     async login(user: LoginDto, request: Request, response: Response) {
-        const existsUser = await this.UserModel.findOne({email: user.email})
+        const existsUser = await this.UserModel.findOne({email: user.email})        
         if (!existsUser) {
             throw new UnauthorizedException('In-valid Login Credintials')
         }

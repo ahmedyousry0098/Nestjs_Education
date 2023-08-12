@@ -23,10 +23,10 @@ import {MailModule} from '../mail/mail.module'
           return schema
         }
       }]
-      ), 
-      JwtModule.register({
-        global: true,
-        secret: process.env.JWT_SECRET,
+    ), 
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
     }),
     MailModule
   ],
