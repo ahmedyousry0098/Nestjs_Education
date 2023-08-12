@@ -5,10 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './Schemas/user.model';
 import {hashSync} from 'bcrypt'
 import {JwtModule} from '@nestjs/jwt'
+import {MailModule} from '../mail/mail.module'
 
 
 @Module({
-  controllers: [UsersController],
   imports: [
     MongooseModule.forFeatureAsync(
       [{
@@ -23,13 +23,14 @@ import {JwtModule} from '@nestjs/jwt'
           return schema
         }
       }]
-    ), 
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET
-    })
+      ), 
+      JwtModule.register({
+        global: true,
+        secret: process.env.JWT_SECRET,
+    }),
+    MailModule
   ],
-
+  controllers: [UsersController],
   providers: [AuthenticationService],
 })
 export class UsersModule {}
