@@ -59,7 +59,7 @@ export class AuthenticationService {
             throw new UnauthorizedException('Account have been deleted!')
         }
         const token = this._JwtService.sign({id: existsUser._id,email: existsUser.email}, {secret: process.env.JWT_SECRET})
-        return response.status(200).json({message: 'Logged In Successfully!', token})
+        return response.status(200).json({message: 'Logged In Successfully!'}).cookie('token', token)
     }
 
     async confirmEmail({token}: ConfirmEmailDto, response: Response) {
@@ -78,8 +78,7 @@ export class AuthenticationService {
             throw new UnauthorizedException('Account have been deleted!')
         }
         const newToken = this._JwtService.sign({id: user._id,email: user.email}, {secret: process.env.JWT_SECRET})
-
-        return response.status(200).json({message: 'Email Confirmed', newToken})
+        return response.status(200).cookie('token', newToken).json({message: 'Email Confirmed'})
     }
 
     async forgetPassword(user: ForgetPasswordDto, request: Request, response: Response) {
