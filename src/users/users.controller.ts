@@ -3,6 +3,7 @@ import { AuthenticationService } from './services/authentication.service';
 import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto } from './DTO/user.dto';
 import { Response, Request } from 'express';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
+import { log } from 'console';
 
 @UseInterceptors(new SerializeInterceptor(UserResponse))
 @Controller('/')
@@ -34,5 +35,10 @@ export class UsersController {
     @Patch('/reset-password')
     resetPassword(@Body() credintials: ResetPasswordDto, @Res() response: Response) {
         return this._AuthenticationService.resetPassword(credintials, response)
+    }
+
+    @Get('/me')
+    whoIam(@Req() request: Request) {
+        return this._AuthenticationService.whoIam(request.cookies.token)
     }
 }

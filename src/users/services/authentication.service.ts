@@ -59,7 +59,7 @@ export class AuthenticationService {
             throw new UnauthorizedException('Account have been deleted!')
         }
         const token = this._JwtService.sign({id: existsUser._id,email: existsUser.email}, {secret: process.env.JWT_SECRET})
-        return response.status(200).json({message: 'Logged In Successfully!'}).cookie('token', token)
+        return response.status(200).cookie('token', token).json({message: 'Logged In Successfully!'})
     }
 
     async confirmEmail({token}: ConfirmEmailDto, response: Response) {
@@ -118,6 +118,15 @@ export class AuthenticationService {
             throw new InternalServerErrorException('Something Went Wrong Please Try Again')
         }
         return response.status(200).json({messge: 'Password Updated Succefully'})
+    }
+
+    async whoIam(token: string) {
+        const {id, email} = this._JwtService.decode(token) as JwtPayload
+        const user = await this.UserModel.findById(id)
+        if (!user) {
+            throw new UnauthorizedException()
+        }
+        return user
     }
 }
 
