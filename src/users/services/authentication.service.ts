@@ -121,12 +121,17 @@ export class AuthenticationService {
     }
 
     async whoIam(token: string) {
-        const {id, email} = this._JwtService.decode(token) as JwtPayload
+        if (!token) throw new UnauthorizedException('Please Login First')
+        const {id} = this._JwtService.decode(token) as JwtPayload
         const user = await this.UserModel.findById(id)
         if (!user) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException('Please Login First')
         }
         return user
     }
-}
 
+    async logOut(request: Request, response: Response) {
+        if (!request.cookies.token) return response.json({message: 'Already Logged Out'})
+        return response.clearCookie('token').json({message: 'logged out successfully'});
+    }
+}

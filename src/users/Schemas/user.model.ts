@@ -20,6 +20,9 @@ export class User {
     phoneNumber: string;
 
     @Prop({default: false})
+    isAdmin: boolean
+
+    @Prop({default: false})
     isDeleted: boolean;
 
     @Prop({default: false})

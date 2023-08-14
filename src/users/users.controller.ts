@@ -1,9 +1,9 @@
-import { Controller, Post, Get, Body, HttpCode, Res, Request as Req, UseInterceptors, Patch, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, Res, Request as Req, UseInterceptors, Patch, Query, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from './services/authentication.service';
 import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto } from './DTO/user.dto';
 import { Response, Request } from 'express';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
-import { log } from 'console';
+import { AuthGuard } from 'src/guards/isAuth.guard';
 
 @UseInterceptors(new SerializeInterceptor(UserResponse))
 @Controller('/')
@@ -40,5 +40,10 @@ export class UsersController {
     @Get('/me')
     whoIam(@Req() request: Request) {
         return this._AuthenticationService.whoIam(request.cookies.token)
+    }
+
+    @Get('/logout')
+    logOut(@Req() request: Request, @Res() response: Response) {
+        return this._AuthenticationService.logOut(request, response)
     }
 }

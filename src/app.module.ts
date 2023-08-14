@@ -6,6 +6,7 @@ import {MongooseModule} from '@nestjs/mongoose'
 import {ConfigModule} from '@nestjs/config'
 import { UsersModule } from './users/users.module';
 import {MailerModule} from '@nestjs-modules/mailer'
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -14,6 +15,10 @@ import {MailerModule} from '@nestjs-modules/mailer'
       envFilePath: '.env'
     }),
     MongooseModule.forRoot(process.env.MONGO_LINK),
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+    }),
     MailerModule.forRoot({
       transport: {
         service: 'outlook',
