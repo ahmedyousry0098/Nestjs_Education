@@ -92,7 +92,7 @@ export class UsersController {
     }
 
     @UseGuards(AuthGuard)
-    @Put('/:profileId/delete-profile')
+    @Patch('/:profileId/delete-profile')
     deleteProfile(
         @Req() request: Request, 
         @Res() response: Response, 

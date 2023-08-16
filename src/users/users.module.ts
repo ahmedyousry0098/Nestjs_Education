@@ -38,8 +38,8 @@ import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
 export class UsersModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(CurrentUserMiddleware).forRoutes(
-      {path: '/:profileId/update-profile', method: RequestMethod.PUT},
-      {path: '/me', method: RequestMethod.GET}
+      {path: '/:profileId', method: RequestMethod.ALL},
+      {path: '/me', method: RequestMethod.GET},
     )
   }
 }
