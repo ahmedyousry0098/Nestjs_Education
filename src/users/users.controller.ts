@@ -1,15 +1,35 @@
-import { Controller, Post, Get, Body, HttpCode, Res, Request as Req, UseInterceptors, Patch, Query, UseGuards } from '@nestjs/common';
+import { 
+    Controller, 
+    Post, 
+    Get, 
+    Patch, 
+    Put,
+    Body, 
+    HttpCode, 
+    Res, 
+    Req, 
+    UseInterceptors, 
+    Query, 
+    UseGuards,
+    ExecutionContext,
+    UnauthorizedException,
+    Param
+} from '@nestjs/common';
 import { AuthenticationService } from './services/authentication.service';
-import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto } from './DTO/user.dto';
+import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto, UpdateProfileDto, UpdatePasswordDto } from './DTO/user.dto';
 import { Response, Request } from 'express';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 import { AuthGuard } from 'src/guards/isAuth.guard';
+import { ProfileService } from './services/profile.service';
+import { CurrentUser } from './decorators/currentUser.decorator';
+import { User } from './Schemas/user.model';
 
 @UseInterceptors(new SerializeInterceptor(UserResponse))
 @Controller('/')
 export class UsersController {
     constructor(
-        private _AuthenticationService: AuthenticationService
+        private _AuthenticationService: AuthenticationService,
+        private _ProfileService: ProfileService
     ) {}
     
     @Post('/register')
@@ -38,12 +58,47 @@ export class UsersController {
     }
 
     @Get('/me')
-    whoIam(@Req() request: Request) {
-        return this._AuthenticationService.whoIam(request.cookies.token)
+    whoIam(@CurrentUser() user: User) {
+        if (!user) throw new UnauthorizedException('Please Login First')
+        return user
     }
 
     @Get('/logout')
     logOut(@Req() request: Request, @Res() response: Response) {
         return this._AuthenticationService.logOut(request, response)
+    }
+
+    @UseGuards(AuthGuard)
+    @Put('/:profileId/update-profile')
+    updateProfile(
+        @Req() request: Request, 
+        @Res() response: Response, 
+        @Body() body: UpdateProfileDto, 
+        @Param('profileId') profileId: string,
+        @CurrentUser() user: UserResponse
+    ) {
+        return this._ProfileService.updateProfile(request, response, body, profileId, user)
+    }
+
+    @UseGuards(AuthGuard)
+    @Patch('/:profileId/update-password')
+    updatePassword(
+        @Res() response: Response,
+        @Param('profileId') profileId: string,
+        @Body() {password}: UpdatePasswordDto,
+        @CurrentUser() user: UserResponse
+    ) {
+        return this._ProfileService.changePassword(response, profileId, password, user)
+    }
+
+    @UseGuards(AuthGuard)
+    @Put('/:profileId/delete-profile')
+    deleteProfile(
+        @Req() request: Request, 
+        @Res() response: Response, 
+        @Param('profileId') profileId: string,
+        @CurrentUser() user: UserResponse
+    ) {
+        return this._ProfileService.deleteProfile(request, response, profileId, user)
     }
 }

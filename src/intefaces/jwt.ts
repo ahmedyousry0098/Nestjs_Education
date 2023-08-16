@@ -1,6 +1,10 @@
 import { ObjectId } from "mongoose";
 
 export interface JwtPayload {
-    id: ObjectId;
+    _id: ObjectId;
     email: string;
+}
+
+export interface CookiePayload {
+    token: string
 }

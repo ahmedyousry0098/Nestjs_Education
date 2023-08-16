@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import {APP_INTERCEPTOR} from '@nestjs/core'
 import { AuthenticationService } from './services/authentication.service';
 import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -6,6 +7,8 @@ import { User, UserSchema } from './Schemas/user.model';
 import {hashSync} from 'bcrypt'
 import {JwtModule} from '@nestjs/jwt'
 import {MailModule} from '../mail/mail.module'
+import { ProfileService } from './services/profile.service';
+import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
 
 
 @Module({
@@ -27,6 +30,16 @@ import {MailModule} from '../mail/mail.module'
     MailModule
   ],
   controllers: [UsersController],
-  providers: [AuthenticationService],
+  providers: [
+    AuthenticationService, 
+    ProfileService,
+  ],
 })
-export class UsersModule {}
+export class UsersModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CurrentUserMiddleware).forRoutes(
+      {path: '/:profileId/update-profile', method: RequestMethod.PUT},
+      {path: '/me', method: RequestMethod.GET}
+    )
+  }
+}

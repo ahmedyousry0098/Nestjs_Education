@@ -4,7 +4,7 @@ import { ObjectId } from 'mongoose';
 
 export class UserResponse {
     @Expose()
-    id: ObjectId
+    _id: ObjectId
 
     @Expose()
     username: string;
@@ -30,9 +30,6 @@ export class RegisterDto {
 
     @IsPhoneNumber('EG')
     phoneNumber: string
-
-    @IsOptional({always: true})
-    isDeleted: boolean
 }
 
 export class LoginDto {
@@ -67,5 +64,21 @@ export class ResetPasswordDto {
 
     @IsString()
     @IsStrongPassword()
+    password: string
+}
+
+export class UpdateProfileDto {
+    @IsString()
+    username: string
+
+    @IsPhoneNumber('EG')
+    phoneNumber: string
+}
+
+export class UpdatePasswordDto {
+    @IsStrongPassword({
+        minLength: 5,
+        minUppercase: 1,
+    })
     password: string
 }

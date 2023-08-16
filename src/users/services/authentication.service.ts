@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, InternalServerErrorException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, UnauthorizedException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { LoginDto, RegisterDto, ForgetPasswordDto, ConfirmEmailDto, ResetPasswordDto } from '../DTO/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument, User } from '../Schemas/user.model';
@@ -23,16 +23,19 @@ export class AuthenticationService {
         if (existsUser) {
             throw new ConflictException('Email Already Exist, Try To Login..')
         }
-        const newUser = await this.UserModel.create(user)
-        if (!newUser) {
-            throw new InternalServerErrorException('Something Went Wrong Please Try Again..')
-        }
+        const newUser = new this.UserModel(user)
         const token = this._JwtService.sign(
-            {id: newUser._id, email: newUser.email}, 
+            {_id: newUser._id, email: newUser.email}, 
             {secret: process.env.JWT_SECRET, expiresIn: 60*10}
         )
         const confirmationLink = `${request.protocol}://${request.headers.host}/confirm-email?token=${token}`
-        await this._MailService.sendConfirmEmailLink(newUser.email, confirmationLink)
+        const mailInfo = await this._MailService.sendConfirmEmailLink(newUser.email, confirmationLink)
+        if (!mailInfo.accepted.length) {
+            throw new ServiceUnavailableException('Cannot Send Email')
+        }
+        if (!newUser.save()) {
+            throw new InternalServerErrorException('Something Went Wrong Please Try Again..')
+        }
         return response.status(201).json({message: ' Please Check Your Email To Confirm Your Account'})
     }
 
@@ -47,27 +50,30 @@ export class AuthenticationService {
         }
         if (!existsUser.isConfirmed) {
             const token = this._JwtService.sign(
-                {id: existsUser._id, email: existsUser.email}, 
+                {_id: existsUser._id, email: existsUser.email}, 
                 {secret: process.env.JWT_SECRET, expiresIn: 60*10}
             )
             const confirmationLink = `${request.protocol}://${request.headers.host}/confirm-email?token=${token}`
-            await this._MailService.sendConfirmEmailLink(existsUser.email, confirmationLink)
+            const mailInfo = await this._MailService.sendConfirmEmailLink(existsUser.email, confirmationLink)
+            if (!mailInfo.accepted.length) {
+                throw new ServiceUnavailableException('Cannot Send Confirmation Mail')
+            }
             throw new UnauthorizedException('Please Check Your Email To Confirm Your Account')
         }
 
         if(existsUser.isDeleted) {
             throw new UnauthorizedException('Account have been deleted!')
         }
-        const token = this._JwtService.sign({id: existsUser._id,email: existsUser.email}, {secret: process.env.JWT_SECRET})
+        const token = this._JwtService.sign({_id: existsUser._id,email: existsUser.email}, {secret: process.env.JWT_SECRET})
         return response.status(200).cookie('token', token).json({message: 'Logged In Successfully!'})
     }
 
     async confirmEmail({token}: ConfirmEmailDto, response: Response) {
-        const {id, email} = this._JwtService.decode(token) as JwtPayload
-        if (!id || !email) {
+        const {_id, email} = this._JwtService.decode(token) as JwtPayload
+        if (!_id || !email) {
             throw new UnauthorizedException()
         }
-        const user = await this.UserModel.findByIdAndUpdate(id, {isConfirmed: true})
+        const user = await this.UserModel.findByIdAndUpdate(_id, {isConfirmed: true})
         if (!user) {
             throw new UnauthorizedException('Please Check Your Credintials and Try Again!')
         }
@@ -77,7 +83,7 @@ export class AuthenticationService {
         if (user.isDeleted) {
             throw new UnauthorizedException('Account have been deleted!')
         }
-        const newToken = this._JwtService.sign({id: user._id,email: user.email}, {secret: process.env.JWT_SECRET})
+        const newToken = this._JwtService.sign({_id: user._id,email: user.email}, {secret: process.env.JWT_SECRET})
         return response.status(200).cookie('token', newToken).json({message: 'Email Confirmed'})
     }
 
@@ -88,11 +94,14 @@ export class AuthenticationService {
         }
         if (!existsUser.isConfirmed) {
             const token = this._JwtService.sign(
-                {id: existsUser._id, email: existsUser.email}, 
+                {_id: existsUser._id, email: existsUser.email}, 
                 {secret: process.env.JWT_SECRET, expiresIn: 60*10}
             )
             const confirmationLink = `${request.protocol}://${request.headers.host}/confirm-email?token=${token}`
-            await this._MailService.sendConfirmEmailLink(existsUser.email, confirmationLink)
+            const mailInfo = await this._MailService.sendConfirmEmailLink(existsUser.email, confirmationLink)
+            if (!mailInfo.accepted.length) {
+                throw new ServiceUnavailableException('Cannot Send Confirmation Email')
+            }
             throw new UnauthorizedException('Please Check Your Email To Confirm Your Account First')
         }
         if(existsUser.isDeleted) {
@@ -118,16 +127,6 @@ export class AuthenticationService {
             throw new InternalServerErrorException('Something Went Wrong Please Try Again')
         }
         return response.status(200).json({messge: 'Password Updated Succefully'})
-    }
-
-    async whoIam(token: string) {
-        if (!token) throw new UnauthorizedException('Please Login First')
-        const {id} = this._JwtService.decode(token) as JwtPayload
-        const user = await this.UserModel.findById(id)
-        if (!user) {
-            throw new UnauthorizedException('Please Login First')
-        }
-        return user
     }
 
     async logOut(request: Request, response: Response) {

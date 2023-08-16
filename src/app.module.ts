@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CourseModule } from './courses/courses.module';
@@ -27,9 +27,10 @@ import { JwtModule } from '@nestjs/jwt';
           user: process.env.MAILER_USER,
           pass: process.env.MAILER_PASS,
         },
+        tls: {rejectUnauthorized: false},
       },
       defaults: {
-        from: process.env.MAILER_USER
+        from: process.env.MAILER_USER,
       }
     }),
     UsersModule,
