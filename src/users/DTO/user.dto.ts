@@ -1,10 +1,10 @@
-import {IsEmail, IsOptional, IsPhoneNumber, IsString, IsStrongPassword} from 'class-validator'
+import {IsEmail, IsOptional, IsPhoneNumber, IsString, IsStrongPassword, IsJWT, Length} from 'class-validator'
 import {Expose, Exclude} from 'class-transformer'
 import { ObjectId } from 'mongoose';
 
 export class UserResponse {
     @Expose()
-    id: ObjectId
+    _id: ObjectId
 
     @Expose()
     username: string;
@@ -30,9 +30,6 @@ export class RegisterDto {
 
     @IsPhoneNumber('EG')
     phoneNumber: string
-
-    @IsOptional({always: true})
-    isDeleted: boolean
 }
 
 export class LoginDto {
@@ -50,4 +47,38 @@ export class LoginDto {
 export class ForgetPasswordDto {
     @IsEmail()
     email: string
+}
+
+export class ConfirmEmailDto {
+    @IsJWT()
+    token: string
+}
+
+export class ResetPasswordDto {
+    @IsEmail()
+    email: string;
+
+    @IsString()
+    @Length(5)
+    resetCode: string
+
+    @IsString()
+    @IsStrongPassword()
+    password: string
+}
+
+export class UpdateProfileDto {
+    @IsString()
+    username: string
+
+    @IsPhoneNumber('EG')
+    phoneNumber: string
+}
+
+export class UpdatePasswordDto {
+    @IsStrongPassword({
+        minLength: 5,
+        minUppercase: 1,
+    })
+    password: string
 }

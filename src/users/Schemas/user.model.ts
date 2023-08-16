@@ -16,14 +16,17 @@ export class User {
     @Prop()
     password: string;
 
+    @Prop()
+    phoneNumber: string;
+
+    @Prop({default: false})
+    isAdmin: boolean
+
     @Prop({default: false})
     isDeleted: boolean;
 
     @Prop({default: false})
     isConfirmed: boolean
-
-    @Prop()
-    phoneNumber: string;
 
     @Prop()
     resetPasswordCode: string
