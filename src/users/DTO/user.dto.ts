@@ -76,9 +76,16 @@ export class UpdateProfileDto {
 }
 
 export class UpdatePasswordDto {
+
     @IsStrongPassword({
         minLength: 5,
         minUppercase: 1,
     })
-    password: string
+    oldPassword: string;
+
+    @IsStrongPassword({
+        minLength: 5,
+        minUppercase: 1,
+    })
+    newPassword: string;
 }
