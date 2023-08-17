@@ -85,10 +85,16 @@ export class UsersController {
     updatePassword(
         @Res() response: Response,
         @Param('profileId') profileId: string,
-        @Body() {password}: UpdatePasswordDto,
+        @Body() {newPassword, oldPassword}: UpdatePasswordDto,
         @CurrentUser() user: UserResponse
     ) {
-        return this._ProfileService.changePassword(response, profileId, password, user)
+        return this._ProfileService.changePassword(
+            response, 
+            profileId, 
+            newPassword, 
+            oldPassword, 
+            user
+        )
     }
 
     @UseGuards(AuthGuard)

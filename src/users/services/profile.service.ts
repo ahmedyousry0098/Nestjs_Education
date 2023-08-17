@@ -1,9 +1,10 @@
-import {Injectable, Put, NotAcceptableException, BadRequestException, InternalServerErrorException} from '@nestjs/common'
+import {Injectable, Put, NotAcceptableException, BadRequestException, InternalServerErrorException, UnauthorizedException} from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../Schemas/user.model';
 import { Model } from 'mongoose';
 import { Request, Response } from 'express';
 import { UpdateProfileDto, UserResponse } from '../DTO/user.dto';
+import {compareSync} from 'bcrypt'
 
 @Injectable()
 export class ProfileService {
@@ -33,6 +34,7 @@ export class ProfileService {
         response: Response,
         profileId: string, 
         newPassword: string, 
+        oldPassword: string,
         user: UserResponse
     ) {
         if (user._id.toString() != profileId) {
@@ -41,6 +43,10 @@ export class ProfileService {
         const profile = await this.UserModel.findById(profileId)
         if (!profile) {
             throw new BadRequestException()
+        }
+        const isPassMatch = compareSync(oldPassword, profile.password)
+        if (!isPassMatch) {
+            throw new UnauthorizedException('Invalid Credintials')
         }
         profile.password = newPassword
         if (!profile.save()) {
