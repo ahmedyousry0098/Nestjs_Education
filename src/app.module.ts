@@ -7,6 +7,7 @@ import {ConfigModule} from '@nestjs/config'
 import { UsersModule } from './users/users.module';
 import {MailerModule} from '@nestjs-modules/mailer'
 import { JwtModule } from '@nestjs/jwt';
+import { UploadModule } from './uploadFiles/upload.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     UsersModule,
     CourseModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

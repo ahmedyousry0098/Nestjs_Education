@@ -38,7 +38,8 @@ import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
 export class UsersModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(CurrentUserMiddleware).forRoutes(
-      {path: '/:profileId', method: RequestMethod.ALL},
+      {path: '/:profileId/*profile', method: RequestMethod.ALL},
+      {path: '/:profileId/*password', method: RequestMethod.PATCH},
       {path: '/me', method: RequestMethod.GET},
     )
   }

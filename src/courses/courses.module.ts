@@ -5,6 +5,8 @@ import {MongooseModule} from '@Nestjs/mongoose'
 import { Course, CourseSchema } from "./Schemas/course.model";
 import { CourseRepository } from "./courses.repository";
 import { User, UserSchema } from "src/users/Schemas/user.model";
+import {} from 'cloudinary'
+import { UploadService } from "src/uploadFiles/upload.service";
 
 @Module({
     imports: [
@@ -14,7 +16,7 @@ import { User, UserSchema } from "src/users/Schemas/user.model";
         ]),
     ],
     controllers: [CourseController],
-    providers: [CourseService, CourseRepository]
+    providers: [CourseService, CourseRepository, UploadService]
 })
 
 export class CourseModule {}
