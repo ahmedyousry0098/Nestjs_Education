@@ -22,9 +22,10 @@ import { ObjectId } from 'mongoose';
 import { CreateCourseDto, CourseResponseDto, UpdateCourseDto } from './DTO/course.dto';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 import { AdminGuard } from 'src/guards/isAdmin.guard';
+import { FindDTO } from 'src/utils/apiFeatures';
 
 @UseInterceptors(new SerializeInterceptor(CourseResponseDto))
-@Controller('/course')
+@Controller('/courses')
 export class CourseController {
     constructor(private _CourseService: CourseService) {}
 
@@ -66,13 +67,13 @@ export class CourseController {
         )
     }
 
-    @Get('/:id')
-    findCourse(@Param('id') id: ObjectId) {
-        return this._CourseService.findCourseById(id)
+    @Get('/')
+    findAllCourses(@Query() query: FindDTO) {
+        return this._CourseService.findAllCourses(query)
     }
 
-    @Get('/')
-    findAllCourses() {
-        return this._CourseService.findAllCourses()
+    @Get('/:id')
+    findCourse(@Param('id') id: string) {
+        return this._CourseService.findCourse(id)
     }
 }

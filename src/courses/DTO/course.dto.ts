@@ -1,4 +1,4 @@
-import {IsString, IsNumber, IsNotEmpty, IsArray, IsOptional, IsBoolean} from 'class-validator'
+import {IsString, IsNumber, IsNotEmpty, IsArray, IsOptional, IsBoolean, IsPositive} from 'class-validator'
 import {Expose, Exclude, Transform} from 'class-transformer'
 import { ObjectId } from 'mongoose'
 import { Iimage } from 'src/intefaces/image'

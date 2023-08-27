@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UploadService } from 'src/uploadFiles/upload.service';
 import { log } from 'console';
 import { generateCustomCode } from 'src/utils/customCode';
+import { ApiFeatures, FindDTO } from 'src/utils/apiFeatures';
 
 @Injectable()
 export class CourseService {
@@ -29,20 +30,7 @@ export class CourseService {
         }
         return newCourse
     }
-
-    async findCourseById(id: ObjectId) {
-        const course = await this.CourseModel.findById(id)
-        if (!course) throw new NotFoundException('Course Not Found!')
-        return course
-    }
-
-    async findAllCourses() {
-        const courses = await this.CourseModel.find({})
-        if (!courses.length) return 'No Course Added Yet!'
-        if (!courses) throw new NotFoundException()
-        return courses
-    }
-
+    
     async updateCourse(
         courseId: string,
         {name, price}: UpdateCourseDto,
@@ -67,6 +55,23 @@ export class CourseService {
 
         if (!course.save()) {
             throw new InternalServerErrorException()
+        }
+        return course
+    }
+
+    async findAllCourses(query: FindDTO) {
+        const mongooseQuery = this.CourseModel.find({})
+        const procQuery = new ApiFeatures(mongooseQuery, query).pagination().search().filter()
+        const courses = await procQuery.mongooseQuery
+        if (!courses.length) return 'No Courses Available'
+        if (!courses) throw new NotFoundException()
+        return courses
+    }
+
+    async findCourse(id: string) {
+        const course = await this.CourseModel.findById(id)
+        if (!course) {
+            throw new BadRequestException('Content not available')
         }
         return course
     }
