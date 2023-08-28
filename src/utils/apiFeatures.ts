@@ -1,43 +1,54 @@
 import { Transform } from "class-transformer";
-import { IsNumber, IsPositive, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 import { Query } from "mongoose";
 
 export class FindDTO {
 
+    @IsOptional()
     @IsNumber()
     @IsPositive()
     @Transform((page) => parseInt(page.value))
     page: number
 
+    @IsOptional()
     @IsNumber()
     @IsPositive()
     @Transform((page) => parseInt(page.value))
     limit: number
 
     @IsString()
+    @IsOptional()
     search: string;
 
+    @IsOptional()
     @IsString()
     gt: string;
 
+    @IsOptional()
     @IsString()
     gte: string;
 
+    @IsOptional()
     @IsString()
     lt: string;
 
+    @IsOptional()
     @IsString()
     lte: string;
     
+    @IsOptional()
     @IsString()
     in: string;
 
+    @IsOptional()
     @IsString()
     nin: string;
 
+    @IsOptional()
     @IsString()
     eq: string;
 
+    @IsOptional()
     @IsString()
     neq: string;
 }

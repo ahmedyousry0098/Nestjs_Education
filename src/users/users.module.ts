@@ -9,7 +9,7 @@ import {JwtModule} from '@nestjs/jwt'
 import {MailModule} from '../mail/mail.module'
 import { ProfileService } from './services/profile.service';
 import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
-
+import { UsersService } from './services/users.service';
 
 @Module({
   imports: [
@@ -33,6 +33,7 @@ import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
   providers: [
     AuthenticationService, 
     ProfileService,
+    UsersService
   ],
 })
 export class UsersModule {

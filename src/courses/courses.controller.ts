@@ -23,6 +23,7 @@ import { CreateCourseDto, CourseResponseDto, UpdateCourseDto } from './DTO/cours
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 import { AdminGuard } from 'src/guards/isAdmin.guard';
 import { FindDTO } from 'src/utils/apiFeatures';
+import { log } from 'console';
 
 @UseInterceptors(new SerializeInterceptor(CourseResponseDto))
 @Controller('/courses')

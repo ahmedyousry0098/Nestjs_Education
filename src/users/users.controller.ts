@@ -16,20 +16,24 @@ import {
     Param
 } from '@nestjs/common';
 import { AuthenticationService } from './services/authentication.service';
-import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto, UpdateProfileDto, UpdatePasswordDto } from './DTO/user.dto';
+import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto, UpdateProfileDto, UpdatePasswordDto, ChangeRoleDto } from './DTO/user.dto';
 import { Response, Request } from 'express';
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 import { AuthGuard } from 'src/guards/isAuth.guard';
 import { ProfileService } from './services/profile.service';
 import { CurrentUser } from './decorators/currentUser.decorator';
 import { User } from './Schemas/user.model';
+import { UsersService } from './services/users.service';
+import { FindDTO } from 'src/utils/apiFeatures';
+import { AdminGuard } from 'src/guards/isAdmin.guard';
 
 @UseInterceptors(new SerializeInterceptor(UserResponse))
 @Controller('/')
 export class UsersController {
     constructor(
         private _AuthenticationService: AuthenticationService,
-        private _ProfileService: ProfileService
+        private _ProfileService: ProfileService,
+        private _UsersService: UsersService
     ) {}
     
     @Post('/register')
@@ -106,5 +110,21 @@ export class UsersController {
         @CurrentUser() user: UserResponse
     ) {
         return this._ProfileService.deleteProfile(request, response, profileId, user)
+    }
+
+    @UseGuards(AdminGuard)
+    @Patch('/make-admin/:userId')
+    changeUserRole(@Param() userId:string, @Query() query: ChangeRoleDto) {
+        return this._ProfileService.changeUserRole(userId, query)
+    }
+
+    @Get('/user/:id')
+    getUser (@Param('id') id: string) {
+        return this._UsersService.findUser(id)
+    }
+
+    @Get('/users')
+    findAllUsers(queryData: FindDTO) {
+        return this._UsersService.getAllUsers(queryData)
     }
 }

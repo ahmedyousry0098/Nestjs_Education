@@ -1,5 +1,6 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose'
 import {HydratedDocument} from 'mongoose'
+import { GENERALROLE } from '../enums/user.role';
 
 export type UserDocument = HydratedDocument<User>
 
@@ -19,8 +20,8 @@ export class User {
     @Prop()
     phoneNumber: string;
 
-    @Prop({default: false})
-    isAdmin: boolean
+    @Prop({enum: GENERALROLE, default: GENERALROLE.USER})
+    role: GENERALROLE
 
     @Prop({default: false})
     isDeleted: boolean;

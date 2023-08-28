@@ -30,7 +30,7 @@ export class AuthenticationService {
         )
         const confirmationLink = `${request.protocol}://${request.headers.host}/confirm-email?token=${token}`
         const mailInfo = await this._MailService.sendConfirmEmailLink(newUser.email, confirmationLink)
-        if (!mailInfo.accepted.length) {
+        if (!mailInfo?.accepted?.length) {
             throw new ServiceUnavailableException('Cannot Send Email')
         }
         if (!newUser.save()) {

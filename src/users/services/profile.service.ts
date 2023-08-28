@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../Schemas/user.model';
 import { Model } from 'mongoose';
 import { Request, Response } from 'express';
-import { UpdateProfileDto, UserResponse } from '../DTO/user.dto';
+import { ChangeRoleDto, UpdateProfileDto, UserResponse } from '../DTO/user.dto';
 import {compareSync} from 'bcrypt'
 
 @Injectable()
@@ -71,4 +71,17 @@ export class ProfileService {
         return response.status(200).clearCookie('token').json({message: 'Profile Deleted Successfully'})
     }
 
+    async changeUserRole(userId: string, {role}: ChangeRoleDto) {
+        
+        const user = await this.UserModel.findById(userId)
+        if (!user) {
+            throw new BadRequestException()
+        }
+
+        user.role = role
+        if (!user.save()) {
+            throw new InternalServerErrorException()
+        }
+        return user
+    }
 } 

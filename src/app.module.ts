@@ -22,11 +22,11 @@ import { UploadModule } from './uploadFiles/upload.module';
     }),
     MailerModule.forRoot({
       transport: {
-        service: 'outlook',
+        service: 'gmail',
         secure: false,
         auth: {
-          user: process.env.MAILER_USER,
-          pass: process.env.MAILER_PASS,
+          user: process.env.G_MAILER_USER,
+          pass: process.env.G_MAILER_PASS,
         },
         tls: {rejectUnauthorized: false},
       },

@@ -1,6 +1,8 @@
-import {IsEmail, IsOptional, IsPhoneNumber, IsString, IsStrongPassword, IsJWT, Length} from 'class-validator'
-import {Expose, Exclude} from 'class-transformer'
+import {IsEmail, IsOptional, IsPhoneNumber, IsString, IsStrongPassword, IsJWT, Length, IsEnum} from 'class-validator'
+import {Expose, Exclude, Transform} from 'class-transformer'
 import { ObjectId } from 'mongoose';
+import { GENERALROLE, PARTIALROLES } from '../enums/user.role';
+
 
 export class UserResponse {
     @Expose()
@@ -30,6 +32,19 @@ export class RegisterDto {
 
     @IsPhoneNumber('EG')
     phoneNumber: string
+
+    @IsString()
+    @IsOptional()
+    @IsEnum(PARTIALROLES)
+    @Transform((role) => role.value.toLowerCase())
+    role: PARTIALROLES
+}
+
+export class ChangeRoleDto {
+    
+    @IsString()
+    @IsEnum(GENERALROLE)
+    role: GENERALROLE
 }
 
 export class LoginDto {
