@@ -23,14 +23,16 @@ import { CreateCourseDto, CourseResponseDto, UpdateCourseDto } from './DTO/cours
 import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 import { AdminGuard } from 'src/guards/isAdmin.guard';
 import { FindDTO } from 'src/utils/apiFeatures';
-import { log } from 'console';
+import { CurrentUser } from 'src/users/decorators/currentUser.decorator';
+import { isInstructor } from 'src/guards/isInstructor.guard';
+import { PartialUser } from 'src/users/interfaces/curren-user.interface';
 
-@UseInterceptors(new SerializeInterceptor(CourseResponseDto))
+// @UseInterceptors(new SerializeInterceptor(CourseResponseDto))
 @Controller('/courses')
 export class CourseController {
     constructor(private _CourseService: CourseService) {}
 
-    @UseGuards(AdminGuard)
+    @UseGuards(isInstructor)
     @UseInterceptors(FileInterceptor('img'))
     @Post('/')
     createCourse(
@@ -40,13 +42,14 @@ export class CourseController {
                 validators: [
                     new FileTypeValidator({fileType: 'image/*'})
                 ]
-            })
-        ) img: Express.Multer.File,
+            }),
+            ) img: Express.Multer.File,
+        @CurrentUser() instructor: PartialUser
     ) {
-        return this._CourseService.createCourse(body, img)
+        return this._CourseService.createCourse(body, img, instructor)
     }
 
-    @UseGuards(AdminGuard)
+    @UseGuards(isInstructor)
     @UseInterceptors(FileInterceptor('img'))
     @Put('/:courseId')
     updateCourse (
@@ -60,12 +63,19 @@ export class CourseController {
                 fileIsRequired: false
             })
         ) img: Express.Multer.File,
+        @CurrentUser() instructor: PartialUser
     ) {
         return this._CourseService.updateCourse(
             courseId, 
             body,
-            img
+            img,
+            instructor
         )
+    }
+
+    @Delete('/:courseId')
+    deleteCourse(@Param('courseId') courseId: string, @CurrentUser() user: PartialUser) {
+        return this._CourseService.deleteCourse(courseId, user)
     }
 
     @Get('/')

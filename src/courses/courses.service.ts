@@ -1,4 +1,4 @@
-import {BadRequestException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, ServiceUnavailableException} from '@nestjs/common'
+import {BadRequestException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, ServiceUnavailableException, UnauthorizedException} from '@nestjs/common'
 import { CourseRepository } from './courses.repository';
 import { Model, ObjectId } from 'mongoose';
 import { Course, CourseDocument } from './Schemas/course.model';
@@ -8,6 +8,7 @@ import { UploadService } from 'src/uploadFiles/upload.service';
 import { log } from 'console';
 import { generateCustomCode } from 'src/utils/customCode';
 import { ApiFeatures, FindDTO } from 'src/utils/apiFeatures';
+import { PartialUser } from 'src/users/interfaces/curren-user.interface'; 
 
 @Injectable()
 export class CourseService {
@@ -16,10 +17,10 @@ export class CourseService {
         private _UploadService: UploadService 
     ){}
     
-    async createCourse(course: CreateCourseDto, img: Express.Multer.File) {
+    async createCourse(course: CreateCourseDto, img: Express.Multer.File, instructor: PartialUser) {
         const {name, price} = course
         const generalId = generateCustomCode(5)
-        const newCourse = new this.CourseModel({generalId, name, price})
+        const newCourse = new this.CourseModel({generalId, name, price, instructorId: instructor._id})
         const {secure_url, public_id} = await this._UploadService.uploadImg(img, `${newCourse.name}${generalId}`)
         if(!public_id || !secure_url) {
             throw new ServiceUnavailableException('Cannot Upload Image, Please Try Again')
@@ -34,11 +35,15 @@ export class CourseService {
     async updateCourse(
         courseId: string,
         {name, price}: UpdateCourseDto,
-        img: Express.Multer.File
+        img: Express.Multer.File,
+        instructor: PartialUser
     ) {
         const course = await this.CourseModel.findById(courseId)
         if (!course) {
             throw new NotFoundException('Course Not Found')
+        }
+        if (course.instructorId.toString() !== instructor._id.toString()) {
+            throw new UnauthorizedException('Cannot Access other instructors courses')
         }
         if (course.isDeleted) {
             throw new GoneException('Course Have been Deleted')
@@ -59,10 +64,23 @@ export class CourseService {
         return course
     }
 
+    async deleteCourse(courseId: string, user: PartialUser) {
+        const course = await this.CourseModel.findById(courseId)
+        if (!course || course.isDeleted) {
+            throw new BadRequestException('Course Not Found')
+        }
+        if (course.instructorId.toString() != user._id.toString()) {
+            throw new UnauthorizedException('Cannot Delete Other Instructors Course')
+        }
+        const deletedCourse = await this.CourseModel.findByIdAndUpdate(courseId, {isDeleted: true}, {new: true, lean: true})
+        if (!deletedCourse) throw new InternalServerErrorException('Something went wrong please try again')
+        return deletedCourse
+    }
+
     async findAllCourses(query: FindDTO) {
         const mongooseQuery = this.CourseModel.find({})
         const procQuery = new ApiFeatures(mongooseQuery, query).pagination().search().filter()
-        const courses = await procQuery.mongooseQuery
+        const courses = await procQuery.mongooseQuery.populate({path: 'instructor', select: "email username"})
         if (!courses.length) return 'No Courses Available'
         if (!courses) throw new NotFoundException()
         return courses
@@ -72,6 +90,9 @@ export class CourseService {
         const course = await this.CourseModel.findById(id)
         if (!course) {
             throw new BadRequestException('Content not available')
+        }
+        if (course.isDeleted) {
+            throw new GoneException('Course Have been Deleted')
         }
         return course
     }

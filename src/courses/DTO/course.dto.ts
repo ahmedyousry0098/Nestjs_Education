@@ -5,26 +5,6 @@ import { Iimage } from 'src/intefaces/image'
 
 export class CourseResponseDto {
 
-    @Expose()
-    _id: ObjectId
-
-    @Expose()
-    name: string
-    
-    @Expose()
-    description: string
-    
-    @Expose()
-    price: number
-
-    @Expose()
-    img: Iimage
-
-    @Exclude()
-    isDeleted: boolean
-
-    @Exclude()
-    enrolledBy: ObjectId[]
 }
 
 export class CreateCourseDto {

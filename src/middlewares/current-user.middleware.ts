@@ -1,6 +1,7 @@
 import {NestMiddleware, Injectable, UnauthorizedException, ForbiddenException} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectModel } from '@nestjs/mongoose'
+import { plainToClassFromExist, plainToInstance } from 'class-transformer'
 import { log } from 'console'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'mongoose'
@@ -30,7 +31,7 @@ export class CurrentUserMiddleware implements NestMiddleware {
         if (!_id) {
             throw new ForbiddenException('Please Provide Valid Authentication Key!')
         }
-        const user = await this.UserModel.findById(_id)
+        const user = await this.UserModel.findById(_id, {_id: 1, email: 1, role: 1})
         if (user) {
             req.user = user
         }
