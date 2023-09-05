@@ -1,6 +1,6 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose'
 import { HydratedDocument, ObjectId} from 'mongoose'
-import { Iimage } from 'src/intefaces/image'
+import { Iimage } from 'src/interfaces/image'
 import {Document, Types} from 'mongoose'
 
 export type CourseDocument = HydratedDocument<Course>

@@ -26,6 +26,8 @@ import { User } from './Schemas/user.model';
 import { UsersService } from './services/users.service';
 import { FindDTO } from 'src/utils/apiFeatures';
 import { AdminGuard } from 'src/guards/isAdmin.guard';
+import { ObjectIdPipe } from 'src/pipes/objectId.pipe';
+import mongoose from 'mongoose';
 
 @UseInterceptors(new SerializeInterceptor(UserResponse))
 @Controller('/')
@@ -78,7 +80,7 @@ export class UsersController {
         @Req() request: Request, 
         @Res() response: Response, 
         @Body() body: UpdateProfileDto, 
-        @Param('profileId') profileId: string,
+        @Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,
         @CurrentUser() user: UserResponse
     ) {
         return this._ProfileService.updateProfile(request, response, body, profileId, user)
@@ -88,7 +90,7 @@ export class UsersController {
     @Patch('/:profileId/update-password')
     updatePassword(
         @Res() response: Response,
-        @Param('profileId') profileId: string,
+        @Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,
         @Body() {newPassword, oldPassword}: UpdatePasswordDto,
         @CurrentUser() user: UserResponse
     ) {
@@ -106,7 +108,7 @@ export class UsersController {
     deleteProfile(
         @Req() request: Request, 
         @Res() response: Response, 
-        @Param('profileId') profileId: string,
+        @Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,
         @CurrentUser() user: UserResponse
     ) {
         return this._ProfileService.deleteProfile(request, response, profileId, user)
@@ -114,13 +116,13 @@ export class UsersController {
 
     @UseGuards(AdminGuard)
     @Patch('/make-admin/:userId')
-    changeUserRole(@Param() userId:string, @Query() query: ChangeRoleDto) {
+    changeUserRole(@Param('userId', ObjectIdPipe) userId: mongoose.Types.ObjectId, @Query() query: ChangeRoleDto) {
         return this._ProfileService.changeUserRole(userId, query)
     }
 
     @Get('/user/:id')
-    getUser (@Param('id') id: string) {
-        return this._UsersService.findUser(id)
+    getUser (@Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,) {
+        return this._UsersService.findUser(profileId)
     }
 
     @Get('/users')

@@ -1,6 +1,6 @@
 import {BadRequestException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, ServiceUnavailableException, UnauthorizedException} from '@nestjs/common'
 import { CourseRepository } from './courses.repository';
-import { Model, ObjectId } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { Course, CourseDocument } from './Schemas/course.model';
 import { CreateCourseDto, UpdateCourseDto } from './DTO/course.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,7 +8,7 @@ import { UploadService } from 'src/uploadFiles/upload.service';
 import { log } from 'console';
 import { generateCustomCode } from 'src/utils/customCode';
 import { ApiFeatures, FindDTO } from 'src/utils/apiFeatures';
-import { PartialUser } from 'src/users/interfaces/curren-user.interface'; 
+import { PartialUser } from 'src/interfaces/curren-user.interface'; 
 
 @Injectable()
 export class CourseService {
@@ -33,7 +33,7 @@ export class CourseService {
     }
     
     async updateCourse(
-        courseId: string,
+        courseId: mongoose.Types.ObjectId,
         {name, price}: UpdateCourseDto,
         img: Express.Multer.File,
         instructor: PartialUser
@@ -64,7 +64,7 @@ export class CourseService {
         return course
     }
 
-    async deleteCourse(courseId: string, user: PartialUser) {
+    async deleteCourse(courseId: mongoose.Types.ObjectId, user: PartialUser) {
         const course = await this.CourseModel.findById(courseId)
         if (!course || course.isDeleted) {
             throw new BadRequestException('Course Not Found')
@@ -86,7 +86,7 @@ export class CourseService {
         return courses
     }
 
-    async findCourse(id: string) {
+    async findCourse(id: mongoose.Types.ObjectId) {
         const course = await this.CourseModel.findById(id)
         if (!course) {
             throw new BadRequestException('Content not available')

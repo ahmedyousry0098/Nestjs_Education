@@ -5,7 +5,7 @@ import { plainToClassFromExist, plainToInstance } from 'class-transformer'
 import { log } from 'console'
 import { Request, Response, NextFunction } from 'express'
 import { Model } from 'mongoose'
-import { CookiePayload, JwtPayload } from 'src/intefaces/jwt'
+import { CookiePayload, JwtPayload } from 'src/interfaces/jwt'
 import { User, UserDocument } from 'src/users/Schemas/user.model'
 
 declare global {

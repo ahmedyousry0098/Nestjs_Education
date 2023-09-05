@@ -1,7 +1,7 @@
 import {Injectable, Put, NotAcceptableException, BadRequestException, InternalServerErrorException, UnauthorizedException} from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../Schemas/user.model';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Request, Response } from 'express';
 import { ChangeRoleDto, UpdateProfileDto, UserResponse } from '../DTO/user.dto';
 import {compareSync} from 'bcrypt'
@@ -16,10 +16,10 @@ export class ProfileService {
         request: Request, 
         response: Response, 
         body: UpdateProfileDto, 
-        profileId: string, 
+        profileId: mongoose.Types.ObjectId, 
         user: UserResponse
     ) {
-        if (user._id.toString() != profileId) {
+        if (user._id.toString() != profileId.toString()) {
             throw new NotAcceptableException()
         }
         const {username, phoneNumber} = body
@@ -32,12 +32,12 @@ export class ProfileService {
 
     async changePassword (
         response: Response,
-        profileId: string, 
+        profileId: mongoose.Types.ObjectId, 
         newPassword: string, 
         oldPassword: string,
         user: UserResponse
     ) {
-        if (user._id.toString() != profileId) {
+        if (user._id.toString() != profileId.toString()) {
             throw new NotAcceptableException()
         }
         const profile = await this.UserModel.findById(profileId)
@@ -58,10 +58,10 @@ export class ProfileService {
     async deleteProfile (
         request: Request, 
         response: Response, 
-        profileId: string, 
+        profileId: mongoose.Types.ObjectId, 
         user: UserResponse
     ) {
-        if (user._id.toString() != profileId) {
+        if (user._id.toString() != profileId.toString()) {
             throw new NotAcceptableException()
         }
         const profile = await this.UserModel.findByIdAndUpdate(profileId, {isDeleted: true})
@@ -71,7 +71,7 @@ export class ProfileService {
         return response.status(200).clearCookie('token').json({message: 'Profile Deleted Successfully'})
     }
 
-    async changeUserRole(userId: string, {role}: ChangeRoleDto) {
+    async changeUserRole(userId: mongoose.Types.ObjectId, {role}: ChangeRoleDto) {
         
         const user = await this.UserModel.findById(userId)
         if (!user) {

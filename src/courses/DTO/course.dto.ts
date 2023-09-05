@@ -1,7 +1,7 @@
 import {IsString, IsNumber, IsNotEmpty, IsArray, IsOptional, IsBoolean, IsPositive} from 'class-validator'
 import {Expose, Exclude, Transform} from 'class-transformer'
 import { ObjectId } from 'mongoose'
-import { Iimage } from 'src/intefaces/image'
+import { Iimage } from 'src/interfaces/image'
 
 export class CourseResponseDto {
 

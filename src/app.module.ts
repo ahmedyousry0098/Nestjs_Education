@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import {MailerModule} from '@nestjs-modules/mailer'
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from './uploadFiles/upload.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { UploadModule } from './uploadFiles/upload.module';
     UsersModule,
     CourseModule,
     UploadModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

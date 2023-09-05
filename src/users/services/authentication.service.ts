@@ -7,7 +7,7 @@ import {compareSync} from 'bcrypt'
 import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { generateCustomCode } from '../../utils/customCode';
-import { JwtPayload } from 'src/intefaces/jwt';
+import { JwtPayload } from 'src/interfaces/jwt';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
