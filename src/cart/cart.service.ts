@@ -6,6 +6,7 @@ import { PartialUser } from 'src/interfaces/curren-user.interface';
 import { Course, CourseDocument } from 'src/courses/Schemas/course.model';
 import { User, UserDocument } from 'src/users/Schemas/user.model';
 import { Response } from 'express';
+import { log } from 'console';
 
 @Injectable()
 export class CartService {
@@ -20,17 +21,17 @@ export class CartService {
         if (!course || course.isDeleted) {
             throw new NotFoundException()
         }
-        const existingCart = await this.CartModel.findOne({userId: user._id})
+        const existingCart = await this.CartModel.findOne({user: user._id})
         if (existingCart) {
             let match = false            
-            for (let course of existingCart.courses) {
-                if (course.courseId.toString() === courseId.toString()) {
+            for (let item of existingCart.courses) {
+                if (item.course.toString() === courseId.toString()) {
                     match = true
                     throw new ConflictException('Already Added')
                 }
             }
             if (!match) {
-                existingCart.courses.push({courseId, discount: discount || 0})
+                existingCart.courses.push({course: courseId, discount: discount || 0})
                 if(!await existingCart.save()) {
                     throw new InternalServerErrorException('Something Went Wrong Please Try Again')
                 }         
@@ -38,9 +39,9 @@ export class CartService {
             }
         }
         const cart = await this.CartModel.create({
-            userId: user._id,
+            user: user._id,
             courses: [{
-                courseId: course._id,
+                course: course._id,
                 discount: discount || 0
             }]
         })
@@ -51,7 +52,7 @@ export class CartService {
     }
 
     async removeFromCart(user: PartialUser, courseId: mongoose.Types.ObjectId) {
-        const cart = await this.CartModel.findOneAndUpdate({userId: user._id}, {$pull: {courses: {courseId}}}, {new: true})
+        const cart = await this.CartModel.findOneAndUpdate({user: user._id}, {$pull: {courses: {course: courseId}}}, {new: true})
         if (!cart) {
             throw new BadRequestException('Cart Is empty')
         }
@@ -59,7 +60,7 @@ export class CartService {
     }
 
     async emptyCart(user: PartialUser) {
-        const cart = await this.CartModel.findOneAndDelete({userId: user._id})
+        const cart = await this.CartModel.findOneAndDelete({user: user._id}, {new: true})
         if (!cart) {
             throw new BadRequestException('Cart Is empty')
         }
@@ -67,13 +68,18 @@ export class CartService {
     }
 
     async displayCart(res: Response, user: PartialUser) {
-        const cart = await this.CartModel.findOne({userId: user._id}).populate([
+        const cart = await this.CartModel.findOne({user: user._id}).populate([
             {
                 path: 'user',
                 select: 'email username'
             },
             {
-                path: 'coursesInfo'
+                path: 'courses.course',
+                populate: {
+                    path: "instructorId",
+                    model: "User",
+                    select: "email username"
+                }
             }
         ])
         if (!cart) return res.status(200).json({message: 'cart is empty'})

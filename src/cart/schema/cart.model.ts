@@ -8,8 +8,8 @@ export type CartDocument = HydratedDocument<Cart>
     toObject: {virtuals: true}
 })
 export class Course {
-    @Prop({type: mongoose.Types.ObjectId, ref: 'Coures', required: true})
-    courseId: mongoose.Types.ObjectId
+    @Prop({type: mongoose.Types.ObjectId, ref: 'Course'})
+    course: mongoose.Types.ObjectId
 
     @Prop({type: Number, default: 0})
     discount: number
@@ -24,23 +24,10 @@ const NestedCourseSchema = SchemaFactory.createForClass(Course)
 })
 export class Cart extends Document {
     @Prop({type: mongoose.Types.ObjectId, ref: 'User', required: true})
-    userId: Types.ObjectId;
+    user: mongoose.Types.ObjectId;
 
-    @Prop([{type: NestedCourseSchema, required: true}])
+    @Prop([{type: NestedCourseSchema}])
     courses: Course[]
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart)
-
-CartSchema.virtual('user', {
-    ref: 'User',
-    foreignField: '_id',
-    localField: 'userId',
-    justOne: true
-})
-
-CartSchema.virtual('coursesInfo', {
-    ref: 'Course',
-    foreignField: '_id',
-    localField: 'courses.courseId'
-})
