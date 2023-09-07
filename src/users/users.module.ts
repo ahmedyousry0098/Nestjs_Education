@@ -18,10 +18,14 @@ import { UsersService } from './services/users.service';
         name: User.name,
         useFactory: () => {
           let schema = UserSchema
-          schema.pre('save', function() {
+          schema.pre('save', function(next) {
             const user = this
-            const saltRounds = parseInt(process.env.SALT_ROUNDS)
-            user.password = hashSync(user.password, saltRounds)
+            if (this.isModified('password')) {
+              const saltRounds = parseInt(process.env.SALT_ROUNDS)
+              user.password = hashSync(user.password, saltRounds)
+              this.lastPasswordChenge = new Date() 
+            }
+            next()
           })
           return schema
         }

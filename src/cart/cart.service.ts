@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { Cart, CartDocument } from './schema/cart.model';
+import { Cart, CartDocument } from './Schemas/cart.model';
 import { PartialUser } from 'src/interfaces/curren-user.interface';
 import { Course, CourseDocument } from 'src/courses/Schemas/course.model';
 import { User, UserDocument } from 'src/users/Schemas/user.model';

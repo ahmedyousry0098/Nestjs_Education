@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, RequestMethod } from "@nestjs/common";
 import { CourseController } from "./courses.controller";
-import { CourseService } from "./courses.service";
+import { CourseService } from "./services/courses.service";
 import {MongooseModule} from '@Nestjs/mongoose'
 import { Course, CourseSchema } from "./Schemas/course.model";
 import { CourseRepository } from "./courses.repository";
