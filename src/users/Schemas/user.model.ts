@@ -8,29 +8,32 @@ export type UserDocument = HydratedDocument<User>
 export class User {
     constructor () {}
 
-    @Prop()
+    @Prop({type: String, required: true})
     username: string;
 
-    @Prop()
+    @Prop({type: String, required: true, unique: true})
     email: string;
 
-    @Prop()
+    @Prop({type: String, required: true})
     password: string;
 
-    @Prop()
+    @Prop({type: String})
     phoneNumber: string;
 
     @Prop({enum: GENERALROLE, default: GENERALROLE.USER})
     role: GENERALROLE
 
-    @Prop({default: false})
+    @Prop({type: Boolean, default: false})
     isDeleted: boolean;
 
-    @Prop({default: false})
+    @Prop({type: Boolean, default: false})
     isConfirmed: boolean
 
-    @Prop()
+    @Prop({type: String, maxlength: 6})
     resetPasswordCode: string
+
+    @Prop({type: Date})
+    lastPasswordChenge: Date
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

@@ -1,7 +1,8 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose'
-import { HydratedDocument, ObjectId} from 'mongoose'
+import mongoose, { HydratedDocument, ObjectId} from 'mongoose'
 import { Iimage } from 'src/interfaces/image'
 import {Document, Types} from 'mongoose'
+import { generateCustomCode } from 'src/utils/customCode'
 
 export type CourseDocument = HydratedDocument<Course>
 
@@ -15,29 +16,29 @@ export type CourseDocument = HydratedDocument<Course>
     }
 })
 export class Course extends Document {
-    @Prop()
+    @Prop({type: String, default: generateCustomCode(4)})
     generalId: string;
 
-    @Prop({required: true})
+    @Prop({type: String, required: true})
     name: string
 
-    @Prop()
+    @Prop({type: String, maxlength: 5000})
     description: string
 
-    @Prop({required: true})
+    @Prop({type: Number, required: true})
     price: number
 
     @Prop({type: Object, required: true})
     img: Iimage
 
-    @Prop()
-    enrolledBy: [ObjectId]
+    @Prop([{type: mongoose.Types.ObjectId, ref: 'User'}])
+    enrolledBy: [mongoose.Types.ObjectId]
 
-    @Prop({default: false})
+    @Prop({type: Boolean, default: false})
     isDeleted: false
 
-    @Prop({type: Types.ObjectId})
-    instructorId: ObjectId
+    @Prop({type: mongoose.Types.ObjectId, ref: 'User'})
+    instructorId: mongoose.Types.ObjectId
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course)

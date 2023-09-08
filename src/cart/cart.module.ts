@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { CartController } from './cart.controller';
 import { CartService } from './cart.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Cart, CartSchema } from './schema/cart.model';
+import { Cart, CartSchema } from './Schemas/cart.model';
 import { User, UserSchema } from 'src/users/Schemas/user.model';
 import { Course, CourseSchema } from 'src/courses/Schemas/course.model';
 import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';

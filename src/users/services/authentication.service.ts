@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { generateCustomCode } from '../../utils/customCode';
 import { JwtPayload } from 'src/interfaces/jwt';
 import { MailService } from 'src/mail/mail.service';
+import { log } from 'console';
 
 @Injectable()
 export class AuthenticationService {

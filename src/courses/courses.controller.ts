@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common'
 import {FileInterceptor} from '@nestjs/platform-express'
 import { Response } from 'express';
-import { CourseService } from './courses.service';
+import { CourseService } from './services/courses.service';
 import { CreateCourseDto, CourseResponseDto, UpdateCourseDto } from './DTO/course.dto';
 import { FindDTO } from 'src/utils/apiFeatures';
 import { CurrentUser } from 'src/users/decorators/currentUser.decorator';

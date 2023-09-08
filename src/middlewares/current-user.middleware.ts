@@ -27,12 +27,13 @@ export class CurrentUserMiddleware implements NestMiddleware {
         if (!token) {
             throw new UnauthorizedException('Please Login First')
         }
-        const {_id} = this._JwtService.decode(token) as JwtPayload 
-        if (!_id) {
+        const decode = this._JwtService.decode(token) as JwtPayload
+        if (!decode._id) {
             throw new ForbiddenException('Please Provide Valid Authentication Key!')
         }
-        const user = await this.UserModel.findById(_id, {_id: 1, email: 1, role: 1})
-        if (user) {
+        const user = await this.UserModel.findById(decode._id, {_id: 1, email: 1, role: 1, lastPasswordChenge: 1})
+        log(new Date(decode.iat*1000) > user.lastPasswordChenge)
+        if (user && new Date(decode.iat*1000) > user.lastPasswordChenge) {
             req.user = user
         }
         next()

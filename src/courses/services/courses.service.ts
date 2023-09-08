@@ -1,8 +1,8 @@
 import {BadRequestException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, ServiceUnavailableException, UnauthorizedException} from '@nestjs/common'
-import { CourseRepository } from './courses.repository';
+import { CourseRepository } from '../courses.repository';
 import mongoose, { Model, ObjectId } from 'mongoose';
-import { Course, CourseDocument } from './Schemas/course.model';
-import { CreateCourseDto, UpdateCourseDto } from './DTO/course.dto';
+import { Course, CourseDocument } from '../Schemas/course.model';
+import { CreateCourseDto, UpdateCourseDto } from '../DTO/course.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { UploadService } from 'src/uploadFiles/upload.service';
 import { log } from 'console';
@@ -19,9 +19,8 @@ export class CourseService {
     
     async createCourse(course: CreateCourseDto, img: Express.Multer.File, instructor: PartialUser) {
         const {name, price} = course
-        const generalId = generateCustomCode(5)
-        const newCourse = new this.CourseModel({generalId, name, price, instructorId: instructor._id})
-        const {secure_url, public_id} = await this._UploadService.uploadImg(img, `${newCourse.name}${generalId}`)
+        const newCourse = new this.CourseModel({name, price, instructorId: instructor._id})
+        const {secure_url, public_id} = await this._UploadService.uploadImg(img, `${newCourse.name}${newCourse.generalId}`)
         if(!public_id || !secure_url) {
             throw new ServiceUnavailableException('Cannot Upload Image, Please Try Again')
         }
@@ -87,7 +86,7 @@ export class CourseService {
     }
 
     async findCourse(id: mongoose.Types.ObjectId) {
-        const course = await this.CourseModel.findById(id)
+        const course = await this.CourseModel.findById(id).populate({path: 'instructor', select: 'email username'})
         if (!course) {
             throw new BadRequestException('Content not available')
         }
