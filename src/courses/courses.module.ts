@@ -27,6 +27,7 @@ export class CourseModule {
             .forRoutes(
                 {path: "/courses", method: RequestMethod.POST},
                 {path: "/courses", method: RequestMethod.PUT},
+                {path: "/courses/*", method: RequestMethod.PATCH}
             )
     }
 }

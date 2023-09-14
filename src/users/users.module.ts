@@ -10,6 +10,7 @@ import {MailModule} from '../mail/mail.module'
 import { ProfileService } from './services/profile.service';
 import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
 import { UsersService } from './services/users.service';
+import { Course, CourseSchema } from 'src/courses/Schemas/course.model';
 
 @Module({
   imports: [
@@ -29,6 +30,11 @@ import { UsersService } from './services/users.service';
           })
           return schema
         }
+      }, {
+        name: Course.name,
+        useFactory: () => {
+          return CourseSchema
+        }
       }]
     ), 
     MailModule
@@ -46,6 +52,7 @@ export class UsersModule {
       {path: '/:profileId/*profile', method: RequestMethod.ALL},
       {path: '/:profileId/*password', method: RequestMethod.PATCH},
       {path: '/me', method: RequestMethod.GET},
+      {path: '/myprofile', method: RequestMethod.GET}
     )
   }
 }
