@@ -3,13 +3,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../Schemas/user.model';
 import mongoose, { Model } from 'mongoose';
 import { Request, Response } from 'express';
-import { ChangeRoleDto, UpdateProfileDto, UserResponse } from '../DTO/user.dto';
+import { ChangeRoleDto, UpdateProfileDto } from '../DTO/user.dto';
 import {compareSync} from 'bcrypt'
+import { PartialUser } from 'src/interfaces/curren-user.interface';
+import { Course, CourseDocument } from 'src/courses/Schemas/course.model';
 
 @Injectable()
 export class ProfileService {
     constructor(
         @InjectModel(User.name) private UserModel: Model<UserDocument>,
+        @InjectModel(Course.name) private CourseModel: Model<CourseDocument>
     ) {}
 
     async updateProfile (
@@ -17,7 +20,7 @@ export class ProfileService {
         response: Response, 
         body: UpdateProfileDto, 
         profileId: mongoose.Types.ObjectId, 
-        user: UserResponse
+        user: PartialUser
     ) {
         if (user._id.toString() != profileId.toString()) {
             throw new NotAcceptableException()
@@ -35,7 +38,7 @@ export class ProfileService {
         profileId: mongoose.Types.ObjectId, 
         newPassword: string, 
         oldPassword: string,
-        user: UserResponse
+        user: PartialUser
     ) {
         if (user._id.toString() != profileId.toString()) {
             throw new NotAcceptableException()
@@ -59,7 +62,7 @@ export class ProfileService {
         request: Request, 
         response: Response, 
         profileId: mongoose.Types.ObjectId, 
-        user: UserResponse
+        user: PartialUser
     ) {
         if (user._id.toString() != profileId.toString()) {
             throw new NotAcceptableException()
@@ -72,16 +75,20 @@ export class ProfileService {
     }
 
     async changeUserRole(userId: mongoose.Types.ObjectId, {role}: ChangeRoleDto) {
-        
         const user = await this.UserModel.findById(userId)
         if (!user) {
             throw new BadRequestException()
         }
-
         user.role = role
         if (!user.save()) {
             throw new InternalServerErrorException()
         }
         return user
+    }
+
+    async myProfile (user: PartialUser) {
+        const {_id} = user
+        const myCourses = await this.CourseModel.find({enrolledBy: {$in: _id}})
+        return {user, courses: myCourses}
     }
 } 

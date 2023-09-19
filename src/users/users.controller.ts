@@ -13,7 +13,8 @@ import {
     UseGuards,
     ExecutionContext,
     UnauthorizedException,
-    Param
+    Param,
+    ClassSerializerInterceptor
 } from '@nestjs/common';
 import { AuthenticationService } from './services/authentication.service';
 import { LoginDto, RegisterDto, ForgetPasswordDto, UserResponse, ConfirmEmailDto, ResetPasswordDto, UpdateProfileDto, UpdatePasswordDto, ChangeRoleDto } from './DTO/user.dto';
@@ -28,8 +29,8 @@ import { FindDTO } from 'src/utils/apiFeatures';
 import { AdminGuard } from 'src/guards/isAdmin.guard';
 import { ObjectIdPipe } from 'src/pipes/objectId.pipe';
 import mongoose from 'mongoose';
+import { PartialUser } from 'src/interfaces/curren-user.interface';
 
-@UseInterceptors(new SerializeInterceptor(UserResponse))
 @Controller('/')
 export class UsersController {
     constructor(
@@ -81,7 +82,7 @@ export class UsersController {
         @Res() response: Response, 
         @Body() body: UpdateProfileDto, 
         @Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,
-        @CurrentUser() user: UserResponse
+        @CurrentUser() user: PartialUser
     ) {
         return this._ProfileService.updateProfile(request, response, body, profileId, user)
     }
@@ -92,7 +93,7 @@ export class UsersController {
         @Res() response: Response,
         @Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,
         @Body() {newPassword, oldPassword}: UpdatePasswordDto,
-        @CurrentUser() user: UserResponse
+        @CurrentUser() user: PartialUser
     ) {
         return this._ProfileService.changePassword(
             response, 
@@ -109,22 +110,31 @@ export class UsersController {
         @Req() request: Request, 
         @Res() response: Response, 
         @Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,
-        @CurrentUser() user: UserResponse
+        @CurrentUser() user: PartialUser
     ) {
         return this._ProfileService.deleteProfile(request, response, profileId, user)
     }
 
+    @UseInterceptors(new SerializeInterceptor(UserResponse))
     @UseGuards(AdminGuard)
     @Patch('/make-admin/:userId')
     changeUserRole(@Param('userId', ObjectIdPipe) userId: mongoose.Types.ObjectId, @Query() query: ChangeRoleDto) {
         return this._ProfileService.changeUserRole(userId, query)
     }
 
+    @UseGuards(AuthGuard)
+    @Get('/myprofile')
+    myProfile(@CurrentUser() user: PartialUser) {
+        return this._ProfileService.myProfile(user)
+    }
+
+    @UseInterceptors(new SerializeInterceptor(UserResponse))
     @Get('/user/:id')
     getUser (@Param('profileId', ObjectIdPipe) profileId: mongoose.Types.ObjectId,) {
         return this._UsersService.findUser(profileId)
     }
 
+    @UseInterceptors(new SerializeInterceptor(UserResponse))
     @Get('/users')
     findAllUsers(queryData: FindDTO) {
         return this._UsersService.getAllUsers(queryData)
