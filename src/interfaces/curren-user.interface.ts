@@ -1,7 +1,7 @@
-import { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 
 export interface PartialUser {
-    _id: ObjectId,
+    _id: mongoose.Types.ObjectId,
     email: string,
     role: string
 }

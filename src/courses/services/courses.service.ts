@@ -1,4 +1,4 @@
-import {BadRequestException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, ServiceUnavailableException, UnauthorizedException} from '@nestjs/common'
+import {BadRequestException, ConflictException, ForbiddenException, GoneException, Injectable, InternalServerErrorException, NotFoundException, ServiceUnavailableException, UnauthorizedException} from '@nestjs/common'
 import { CourseRepository } from '../courses.repository';
 import mongoose, { Model, ObjectId } from 'mongoose';
 import { Course, CourseDocument } from '../Schemas/course.model';
@@ -94,5 +94,50 @@ export class CourseService {
             throw new GoneException('Course Have been Deleted')
         }
         return course
+    }
+
+    async enrollCourse(user: PartialUser, courseId: mongoose.Types.ObjectId) {
+        const course = await this.CourseModel.findByIdAndUpdate(courseId)
+        if (!course) {
+            throw new BadRequestException('In-valid Course ID')
+        }
+        if (course.isDeleted) {
+            throw new GoneException('Course Not available')
+        }
+        let isEnrolled = false
+        for (let stu of course.enrolledBy) {
+            if (stu.toString() === user._id.toString()) {
+                isEnrolled = true
+                break;
+            }
+        }
+        if (isEnrolled) throw new BadRequestException('You are already enrolled')
+        course.enrolledBy.push(user._id)
+        if (!await course.save()) {
+            throw new InternalServerErrorException('Something Went Wrong Please Try Again')
+        }
+        return course
+    }
+
+    async unenrollCourse(user: PartialUser, courseId: mongoose.Types.ObjectId) {
+        const course = await this.CourseModel.findByIdAndUpdate(courseId)
+        if (!course) {
+            throw new BadRequestException('In-valid Course ID')
+        }
+        if (course.isDeleted) {
+            throw new GoneException('Course Not available')
+        }
+        let isEnrolled = false
+        for (let stu of course.enrolledBy) {
+            if (stu.toString() === user._id.toString()) {
+                isEnrolled = true
+                break;
+            }
+        }
+        if (!isEnrolled) {
+            throw new BadRequestException('You are already not enrolled')
+        }
+        const updatedCourse = await this.CourseModel.findByIdAndUpdate(courseId, {$pull: {enrolledBy: user._id}}, {new: true})
+        return updatedCourse
     }
 }

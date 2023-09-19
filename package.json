@@ -34,11 +34,13 @@
     "cloudinary": "^1.40.0",
     "cookie-parser": "^1.4.6",
     "express-session": "^1.17.3",
-    "mongoose": "^7.4.1",
+    "mongoose": "^7.5.2",
     "nestjs-cloudinary": "^2.0.6",
     "nodemailer": "^6.9.4",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "strip": "^3.0.0",
+    "stripe": "^13.5.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

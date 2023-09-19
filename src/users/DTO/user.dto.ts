@@ -1,12 +1,11 @@
 import {IsEmail, IsOptional, IsPhoneNumber, IsString, IsStrongPassword, IsJWT, Length, IsEnum} from 'class-validator'
 import {Expose, Exclude, Transform} from 'class-transformer'
-import { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
 import { GENERALROLE, PARTIALROLES } from '../enums/user.role';
-
 
 export class UserResponse {
     @Expose()
-    _id: ObjectId
+    _id: mongoose.Types.ObjectId
 
     @Expose()
     username: string;

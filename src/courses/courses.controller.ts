@@ -25,6 +25,7 @@ import { isInstructor } from 'src/guards/isInstructor.guard';
 import { PartialUser } from 'src/interfaces/curren-user.interface';
 import { ObjectIdPipe } from 'src/pipes/objectId.pipe';
 import mongoose from 'mongoose';
+import { AuthGuard } from 'src/guards/isAuth.guard';
 
 @Controller('/courses')
 export class CourseController {
@@ -84,5 +85,23 @@ export class CourseController {
     @Get('/:id')
     findCourse(@Param('id', ObjectIdPipe) id: mongoose.Types.ObjectId) {
         return this._CourseService.findCourse(id)
+    }
+
+    @UseGuards(AuthGuard)
+    @Patch('/:courseId/enroll')
+    enrollCourse(
+        @CurrentUser() user: PartialUser,
+        @Param('courseId', ObjectIdPipe) courseId: mongoose.Types.ObjectId
+    ) {
+        return this._CourseService.enrollCourse(user, courseId)
+    }
+
+    @UseGuards(AuthGuard)
+    @Patch('/:courseId/unenroll')
+    unenrollCourse(
+        @CurrentUser() user: PartialUser,
+        @Param('courseId', ObjectIdPipe) courseId: mongoose.Types.ObjectId
+    ) {
+        return this._CourseService.unenrollCourse(user, courseId)
     }
 }
