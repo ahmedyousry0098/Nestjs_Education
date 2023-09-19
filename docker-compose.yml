@@ -1,0 +1,7 @@
+version: '3'
+services:
+  nest-edu: 
+    container_name: nest-edu-app
+    build: .
+    ports:
+      - 3000:3000

@@ -1,13 +1,17 @@
-# syntax=docker/dockerfile:1
-
-FROM node:18-alpine
+FROM node:18.13.0
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
+COPY package.json .
+
+COPY tsconfig*.json .
 
 RUN npm install 
 
 COPY . .
 
-CMD ["npm", "start"]
+RUN npm install -g @nestjs/cli
+
+EXPOSE 3000
+
+CMD ["nest", "start"]
