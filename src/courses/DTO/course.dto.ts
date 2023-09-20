@@ -1,6 +1,6 @@
-import {IsString, IsNumber, IsNotEmpty, IsArray, IsOptional, IsBoolean, IsPositive} from 'class-validator'
+import {IsString, IsNumber, IsNotEmpty, IsArray, IsOptional, IsBoolean, IsPositive, IsMongoId} from 'class-validator'
 import {Expose, Exclude, Transform} from 'class-transformer'
-import { ObjectId } from 'mongoose'
+import mongoose, { ObjectId } from 'mongoose'
 import { Iimage } from 'src/interfaces/image'
 
 export class CourseResponseDto {
@@ -15,6 +15,10 @@ export class CreateCourseDto {
     @IsNumber()
     @Transform((price) => parseInt(price.value))
     price: number
+
+    @IsMongoId({message: 'In-valid Category ID'})
+    categoryId: mongoose.Types.ObjectId
+
 }
 
 export class UpdateCourseDto {

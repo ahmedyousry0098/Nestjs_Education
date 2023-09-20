@@ -9,6 +9,7 @@ import {MailerModule} from '@nestjs-modules/mailer'
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from './uploadFiles/upload.module';
 import { CartModule } from './cart/cart.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CartModule } from './cart/cart.module';
     CourseModule,
     UploadModule,
     CartModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

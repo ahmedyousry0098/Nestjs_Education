@@ -9,23 +9,29 @@ import { log } from 'console';
 import { generateCustomCode } from 'src/utils/customCode';
 import { ApiFeatures, FindDTO } from 'src/utils/apiFeatures';
 import { PartialUser } from 'src/interfaces/curren-user.interface'; 
+import { Category, CategoryDocument } from 'src/categories/Schemas/category.model';
 
 @Injectable()
 export class CourseService {
     constructor(
         @InjectModel(Course.name) private CourseModel: Model<CourseDocument>,
+        @InjectModel(Category.name) private CategoryModel: Model<CategoryDocument>,
         private _UploadService: UploadService 
     ){}
     
     async createCourse(course: CreateCourseDto, img: Express.Multer.File, instructor: PartialUser) {
-        const {name, price} = course
-        const newCourse = new this.CourseModel({name, price, instructorId: instructor._id})
+        const {name, price, categoryId} = course
+        const category = await this.CategoryModel.find(categoryId)
+        if (!category) {
+            throw new BadRequestException('Please Provide existing category')
+        }
+        const newCourse = new this.CourseModel({name, price, instructorId: instructor._id, category: categoryId})
         const {secure_url, public_id} = await this._UploadService.uploadImg(img, `${newCourse.name}${newCourse.generalId}`)
         if(!public_id || !secure_url) {
             throw new ServiceUnavailableException('Cannot Upload Image, Please Try Again')
         }
         newCourse.img = {secure_url, public_id}
-        if (!newCourse.save()) {
+        if (!await newCourse.save()) {
             throw new InternalServerErrorException()
         }
         return newCourse
@@ -79,14 +85,20 @@ export class CourseService {
     async findAllCourses(query: FindDTO) {
         const mongooseQuery = this.CourseModel.find({})
         const procQuery = new ApiFeatures(mongooseQuery, query).pagination().search().filter()
-        const courses = await procQuery.mongooseQuery.populate({path: 'instructor', select: "email username"})
+        const courses = await procQuery.mongooseQuery.populate([
+            {path: 'instructor', select: "email username"},
+            {path: 'category', select: 'name'}
+        ])
         if (!courses.length) return 'No Courses Available'
         if (!courses) throw new NotFoundException()
         return courses
     }
 
     async findCourse(id: mongoose.Types.ObjectId) {
-        const course = await this.CourseModel.findById(id).populate({path: 'instructor', select: 'email username'})
+        const course = await this.CourseModel.findById(id).populate([
+            {path: 'instructor', select: 'email username'},
+            {path: 'category', select: 'name'}
+        ])
         if (!course) {
             throw new BadRequestException('Content not available')
         }

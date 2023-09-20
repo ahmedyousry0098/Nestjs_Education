@@ -7,6 +7,7 @@ import { generateCustomCode } from 'src/utils/customCode'
 export type CourseDocument = HydratedDocument<Course>
 
 @Schema({
+    timestamps: true,
     virtuals: true,
     toJSON: {
         virtuals: true
@@ -30,6 +31,9 @@ export class Course extends Document {
 
     @Prop({type: Object, required: true})
     img: Iimage
+
+    @Prop({type: mongoose.Types.ObjectId, ref: 'Category'})
+    category: mongoose.Types.ObjectId
 
     @Prop([{type: mongoose.Types.ObjectId, ref: 'User'}])
     enrolledBy: [mongoose.Types.ObjectId]

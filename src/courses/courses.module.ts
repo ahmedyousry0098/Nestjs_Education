@@ -8,12 +8,14 @@ import { User, UserSchema } from "src/users/Schemas/user.model";
 import {} from 'cloudinary'
 import { UploadService } from "src/uploadFiles/upload.service";
 import { CurrentUserMiddleware } from "src/middlewares/current-user.middleware";
+import { Category, CategorySchema } from "src/categories/Schemas/category.model";
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             {name: Course.name, schema: CourseSchema},
-            {name: User.name, schema: UserSchema}
+            {name: User.name, schema: UserSchema},
+            {name: Category.name, schema: CategorySchema}
         ]),
     ],
     controllers: [CourseController],

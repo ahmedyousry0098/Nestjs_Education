@@ -5,7 +5,9 @@ import { Exclude } from 'class-transformer';
 
 export type UserDocument = HydratedDocument<User>
 
-@Schema()
+@Schema({
+    timestamps: true,
+})
 export class User {
     constructor () {}
 
